@@ -1,5 +1,4 @@
 # Imports
-
 import re
 import random
 import unicodedata
@@ -8,7 +7,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 # Global Variables
-
 LANGUAGE1 = 'eng'
 LANGUAGE2 = 'fra'
 FILEPATH = 'eng-fra.txt'
@@ -26,7 +24,6 @@ PREFIXES = (
     "they are", "they re ")
 
 #  Language Helper Class
-
 class Language:
     def __init__(self, name):
         self.name = name
@@ -50,6 +47,7 @@ class Language:
 
 #  Data pre-processing functions
 
+# Function to normalize data and convert into ASCII
 def normalize_data(input_str):
     input_str = input_str.lower()
     input_str = input_str.strip()
@@ -60,6 +58,7 @@ def normalize_data(input_str):
     input_str = input_str.strip()
     return input_str
 
+# Function to apply filter based on length and prefixes
 def is_valid_pair(pair):
     first_sentence_length = len(pair[0].split(' '))
     second_sentence_length = len(pair[1].split(' '))
@@ -69,6 +68,7 @@ def is_valid_pair(pair):
 
     return is_below_max_length and starts_with_prefix
 
+# Function to read and preprocess the data
 def preprocess_data(language1, language2):
     print('---Data Preprocessing---')
     lines = open(FILEPATH, encoding='utf-8').read().strip().split('\n')
@@ -95,6 +95,7 @@ def preprocess_data(language1, language2):
 
     return input_language, output_language, line_pairs
 
+# Function to split the data into training and testing pairs
 def split_data(line_pairs, test_size=0.2, random_state=42):
     print('\n---Split Data---')
     train_pairs, test_pairs = train_test_split(line_pairs, test_size=test_size, random_state=random_state)
@@ -106,7 +107,6 @@ def split_data(line_pairs, test_size=0.2, random_state=42):
 
 
 # Example usage
-
 input_language, output_language, line_pairs = preprocess_data(LANGUAGE1, LANGUAGE2)
 
 train_pairs, test_pairs = split_data(line_pairs, test_size=0.2)
