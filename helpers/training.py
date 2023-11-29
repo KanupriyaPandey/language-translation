@@ -1,5 +1,29 @@
+# Imports
+
+import numpy as np
+
+import torch
+import torch.nn as nn
+from torch import optim
+import torch.nn.functional as F
+
+from torch.utils.data import TensorDataset, DataLoader, RandomSampler
+import time
+import math
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+# Global Variables
+
+SOS_token = 0
+EOS_token = 1
+MAX_LENGTH = 10
+
+
 # Function to load and prepare training data
-def prepare_train_dataloader(train_pairs, batch_size):
+
+def prepare_dataloader(input_language, output_language, train_pairs, batch_size):
     input_ids_main = np.zeros((len(train_pairs), MAX_LENGTH), dtype=np.int32)
     target_ids_main = np.zeros((len(train_pairs), MAX_LENGTH), dtype=np.int32)
 
@@ -23,29 +47,42 @@ def prepare_train_dataloader(train_pairs, batch_size):
 
     return input_language, output_language, train_dataloader
 
+
 # Function to define optimizer
+
 def define_optimizer(encoder, decoder, learning_rate):
     encoder_optimizer = optim.Adam(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.Adam(decoder.parameters(), lr=learning_rate)
 
     return encoder_optimizer, decoder_optimizer
 
+
 # Function to define loss function
+
 def define_loss():
     criterion = nn.NLLLoss()
 
     return criterion
 
 # Function to train the model
-def train(train_dataloader, encoder, decoder,
-          encoder_optimizer, decoder_optimizer, criterion,
-          epochs, print_every=10):
 
+def train(train_dataloader, encoder, decoder, learning_rate, epochs=80, print_result=10):
+    print('Training...')
+    
+    plot_losses = []
+    plot_accuracies = []
     loss_total = 0
 
+    encoder_optimizer = optim.Adam(encoder.parameters(), lr=learning_rate)
+    decoder_optimizer = optim.Adam(decoder.parameters(), lr=learning_rate)
+    criterion = nn.NLLLoss()
+
     for epoch in range(1, epochs + 1):
-        loss_val = 0
-        for data in train_dataloader:
+        epoch_loss = 0
+        correct_tokens = 0
+        total_tokens = 0
+
+        for batch_idx, data in enumerate(train_dataloader, 1):
             input_tensor, target_tensor = data
 
             encoder_optimizer.zero_grad()
@@ -63,12 +100,25 @@ def train(train_dataloader, encoder, decoder,
             encoder_optimizer.step()
             decoder_optimizer.step()
 
-            loss_val += loss.item()
+            epoch_loss += loss.item()
 
-        loss_val =  loss_val/len(train_dataloader)
-        loss_total += loss
+            # Calculate accuracy based on non-padding tokens
+            _, predicted = torch.max(decoder_outputs, 2)
+            non_pad_tokens = (target_tensor != 0).sum().item()
+            correct_tokens += ((predicted == target_tensor) & (target_tensor != 0)).sum().item()
+            total_tokens += non_pad_tokens
 
-        if epoch % print_every == 0:
-            print_loss_avg = loss_total/print_every
-            print_loss_total = 0
-            print(epoch, print_loss_avg)
+        accuracy = correct_tokens / total_tokens if total_tokens > 0 else 0
+        epoch_loss /= len(train_dataloader)
+
+        loss_total += epoch_loss
+        plot_losses.append(epoch_loss)
+        plot_accuracies.append(accuracy)
+
+        if epoch % print_result == 0:
+            avg_loss = loss_total / print_result
+            avg_accuracy = sum(plot_accuracies[-print_result:]) / print_result
+            print(f'Epoch [{epoch}/{epochs}], Average Loss: {avg_loss:.4f}, Average Accuracy: {avg_accuracy:.4f}')
+            loss_total = 0
+
+    return plot_losses, plot_accuracies

@@ -1,4 +1,5 @@
 # Imports
+
 import re
 import random
 import unicodedata
@@ -6,14 +7,11 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 
+
 # Global Variables
-LANGUAGE1 = 'eng'
-LANGUAGE2 = 'fra'
-FILEPATH = 'eng-fra.txt'
 
 SOS_token = 0
 EOS_token = 1
-
 MAX_LENGTH = 10
 PREFIXES = (
     "i am ", "i m ",
@@ -22,6 +20,7 @@ PREFIXES = (
     "you are", "you re ",
     "we are", "we re ",
     "they are", "they re ")
+
 
 #  Language Helper Class
 class Language:
@@ -45,9 +44,9 @@ class Language:
         else:
             self.word2count[word] += 1
 
-#  Data pre-processing functions
 
 # Function to normalize data and convert into ASCII
+
 def normalize_data(input_str):
     input_str = input_str.lower()
     input_str = input_str.strip()
@@ -58,7 +57,9 @@ def normalize_data(input_str):
     input_str = input_str.strip()
     return input_str
 
+
 # Function to apply filter based on length and prefixes
+
 def is_valid_pair(pair):
     first_sentence_length = len(pair[0].split(' '))
     second_sentence_length = len(pair[1].split(' '))
@@ -68,11 +69,13 @@ def is_valid_pair(pair):
 
     return is_below_max_length and starts_with_prefix
 
+
 # Function to read and preprocess the data
-def preprocess_data(language1, language2):
-    print('---Data Preprocessing---')
-    lines = open(FILEPATH, encoding='utf-8').read().strip().split('\n')
-    print('Number of translation pairs:', len(lines))
+
+def preprocess_data(filepath, language1, language2):
+    # print('---Data Preprocessing---')
+    lines = open(filepath, encoding='utf-8').read().strip().split('\n')
+    # print('Number of translation pairs:', len(lines))
 
     line_pairs = [line.split('\t') for line in lines]
     line_pairs = [[pair[0], pair[1]] for pair in line_pairs]
@@ -83,30 +86,24 @@ def preprocess_data(language1, language2):
     output_language = Language(language1)
 
     line_pairs = [pair for pair in line_pairs if is_valid_pair(pair)]
-    print('Number of translation pairs after filter:', len(line_pairs))
+    print('Number of translation pairs:', len(line_pairs))
 
     for pair in line_pairs:
         input_language.add_sentence(pair[0])
         output_language.add_sentence(pair[1])
 
-    print("Translation vocabulary:")
     print(input_language.name, input_language.n_words)
     print(output_language.name, output_language.n_words)
 
     return input_language, output_language, line_pairs
 
+
 # Function to split the data into training and testing pairs
+
 def split_data(line_pairs, test_size=0.2, random_state=42):
-    print('\n---Split Data---')
     train_pairs, test_pairs = train_test_split(line_pairs, test_size=test_size, random_state=random_state)
 
     print("Number of training pairs:", len(train_pairs))
     print("Number of testing pairs:", len(test_pairs))
 
     return train_pairs, test_pairs
-
-
-# Example usage
-input_language, output_language, line_pairs = preprocess_data(LANGUAGE1, LANGUAGE2)
-
-train_pairs, test_pairs = split_data(line_pairs, test_size=0.2)
