@@ -18,7 +18,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 SOS_token = 0
 EOS_token = 1
-MAX_LENGTH = 10
+MAX_LENGTH = 15
 
 
 # Function to load and prepare training data
@@ -76,11 +76,10 @@ def train(train_dataloader, encoder, decoder, epochs, learning_rate=0.001,
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
     total_batches = len(train_dataloader)
-
-    encoder_optimizer = optim.Adam(encoder.parameters(), lr=learning_rate)
-    decoder_optimizer = optim.Adam(decoder.parameters(), lr=learning_rate)
-    criterion = nn.NLLLoss()
-
+    
+    encoder_optimizer , decoder_optimizer = define_optimizer(encoder, decoder, learning_rate)
+    criterion = define_loss()
+     
     for epoch in range(1, epochs + 1):
         epoch_loss = 0
         correct_tokens = 0

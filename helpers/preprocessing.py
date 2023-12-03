@@ -12,15 +12,7 @@ from sklearn.model_selection import train_test_split
 
 SOS_token = 0
 EOS_token = 1
-MAX_LENGTH = 10
-
-PREFIXES = (
-    "i am ", "i m ",
-    "he is", "he s ",
-    "she is", "she s ",
-    "you are", "you re ",
-    "we are", "we re ",
-    "they are", "they re ")
+MAX_LENGTH = 15
 
 
 #  Language Helper Class
@@ -66,38 +58,9 @@ def is_valid_pair(pair):
     second_sentence_length = len(pair[1].split(' '))
 
     is_below_max_length = first_sentence_length < MAX_LENGTH and second_sentence_length < MAX_LENGTH
-    starts_with_prefix = pair[1].startswith(PREFIXES)
+    # starts_with_prefix = pair[1].startswith(PREFIXES)
 
-    return is_below_max_length and starts_with_prefix
-
-
-# Function to read and preprocess the data
-
-# def preprocess_data(filepath, language1, language2):
-#     # print('---Data Preprocessing---')
-#     lines = open(filepath, encoding='utf-8').read().strip().split('\n')
-#     # print('Number of translation pairs:', len(lines))
-
-#     line_pairs = [line.split('\t') for line in lines]
-#     line_pairs = [[pair[0], pair[1]] for pair in line_pairs]
-#     line_pairs = [[normalize_data(substring) for substring in pair] for pair in line_pairs]
-#     line_pairs = [list(reversed(pair)) for pair in line_pairs]
-
-#     input_language = Language(language2)
-#     output_language = Language(language1)
-
-#     line_pairs = [pair for pair in line_pairs if is_valid_pair(pair)]
-#     print('Number of translation pairs:', len(line_pairs))
-
-#     for pair in line_pairs:
-#         input_language.add_sentence(pair[0])
-#         output_language.add_sentence(pair[1])
-
-#     print(input_language.name, input_language.n_words)
-#     print(output_language.name, output_language.n_words)
-
-#     return input_language, output_language, line_pairs
-
+    return is_below_max_length
 
 
 
@@ -137,8 +100,6 @@ def preprocess_data(filepath, language1, language2):
     print(f'Vocabulary - {output_language.name}: {output_language.n_words}')
 
     return input_language, output_language, line_pairs
-
-
 
 
 # Function to split the data into training and testing pairs
