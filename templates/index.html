@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Language Translator</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
+
+    <style>
+      body {
+        /* font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; */
+        font-family: "Garamond", serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        max-width: 800px;
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        border: 2px solid #4caf50; /* Greenish border */
+        font-family: "Garamond", serif; /* Apply Garamond font to the dropdown */
+      }
+
+      h1 {
+        margin-top: 0;
+        color: #333;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        /* font-family: "Garamond", serif; Apply Garamond font to the dropdown */
+      }
+
+      textarea,
+      select {
+        width: calc(100% - 40px);
+        margin: 10px 0;
+        padding: 12px;
+        border-radius: 5px;
+        border: 1px solid #aabc99;
+        resize: vertical;
+        font-size: 20px;
+        font-family: "Garamond", serif; /* Apply Garamond font */
+      }
+
+      input[type="submit"] {
+        padding: 12px 24px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 20px;
+        transition: background-color 0.3s ease;
+        font-family: "Garamond", serif; /* Apply Garamond font */
+      }
+
+      input[type="submit"]:hover {
+        background-color: #45a049;
+        border-color: #45a049; /* Change border color on hover */
+      }
+
+      .box {
+        /* border: 1px solid #ccc; */
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #aabc99;
+      }
+
+      .box h3 {
+        margin: 0 0 5px;
+        font-size: 16px;
+        color: #333;
+      }
+
+      .box p {
+        margin: 0;
+        font-size: 20px;
+        /* color: #666; */
+        color: black;
+        font-weight: bold;
+      }
+
+      .input-line,
+      .translated-line {
+        display: flex;
+        align-items: center;
+        /* font-size: 20px !important; */
+      }
+
+      .input-label,
+      .translated-label {
+        font-weight: bold;
+        margin-right: 10px;
+        font-size: 20px;
+        color: #0ba510; /* Change this color as desired */
+      }
+
+      select {
+        width: calc(50% - 20px);
+        margin: 10px;
+        padding: 12px;
+        border-radius: 5px;
+        border: 1px solid #aabc99; /* Color for the dropdown border */
+        font-size: 20px;
+        font-family: "Garamond", serif; /* Apply Garamond font to the dropdown */
+        text-align: center;
+      }
+
+      select,
+      input[type="submit"] {
+        width: calc(50% - 20px);
+        margin: 10px;
+      }
+
+      select option {
+        font-size: 20px; /* Set the font size for the dropdown options */
+        font-family: "Garamond", serif; /* Apply Garamond font to the dropdown */
+      }
+
+      /* .option-font {
+        font-family: "Garamond", serif; /* Apply Garamond font to the dropdown }*/
+
+      .form-group {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .input-text,
+      .translated-text {
+        font-weight: bold;
+        font-size: 18px;
+        color: #333; /* Change this color as desired */
+      }
+
+      .word-not-found {
+        color: red; /* Change the color as desired */
+        /* You can add more specific styles here */
+      }
+    </style>
+
+    <script>
+      function checkInput() {
+        const inputText = document.querySelector('textarea[name="input_text"]');
+        const translateButton = document.querySelector('input[type="submit"]');
+        const warningMessage = document.querySelector(".warning");
+
+        const languageSelector = document.querySelector(
+          'select[name="language"]'
+        );
+        languageSelector.addEventListener("change", function () {
+          localStorage.setItem("selected_language", languageSelector.value);
+          window.location.replace("/"); // Redirect to the home page when the selection changes
+        });
+
+        if (inputText.value.trim() === "") {
+          translateButton.disabled = true;
+          warningMessage.style.display = "block";
+        } else {
+          translateButton.disabled = false;
+          warningMessage.style.display = "none";
+        }
+      }
+
+      window.onload = function () {
+        const languageSelector = document.querySelector(
+          'select[name="language"]'
+        );
+        const storedLanguage = localStorage.getItem("selected_language");
+        if (storedLanguage) {
+          languageSelector.value = storedLanguage;
+        }
+
+        checkInput();
+      };
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1 style="color: #045507">Language Translation Service</h1>
+
+      <form action="/translate" method="post" onsubmit="checkInput()">
+        <textarea
+          name="input_text"
+          rows="4"
+          placeholder="Enter text to translate..."
+          oninput="checkInput()"
+        ></textarea>
+        <div class="form-group">
+          <select name="language">
+            <option value="eng_fra">French to English</option>
+            <option value="eng_por">Portuguese to English</option>
+            <option value="eng_spa">Spanish to English</option>
+            <option value="eng_due">German to English</option>
+          </select>
+          <input type="submit" value="Translate" disabled />
+        </div>
+        <!-- <div class="warning">Please enter text before translating.</div> -->
+      </form>
+
+      <div class="result">
+        {% if input_text %}
+        <div class="box">
+          <div class="input-line">
+            <span class="input-label">Input Text:</span>
+            <p class="input-text">{{ input_text }}</p>
+          </div>
+        </div>
+        <div class="box">
+          <div class="translated-line">
+            <span class="translated-label">Translated Text:</span>
+            <p class="translated-text">
+              {% if translated_text == 'Words not found in vocabulary' %}
+              <span style="color: red">{{ translated_text }}</span>
+              {% else %} {{ translated_text }} {% endif %}
+            </p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <script>
+      const languageSelector = document.querySelector(
+        'select[name="language"]'
+      );
+
+      languageSelector.addEventListener("change", function () {
+        localStorage.setItem("selected_language", languageSelector.value);
+      });
+    </script>
+  </body>
+</html>
